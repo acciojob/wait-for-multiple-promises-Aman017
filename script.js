@@ -1,40 +1,40 @@
 //your JS code here. If required.
 const output = document.getElementById("output");
 
-// Show loading initially
-const loadingRow = document.createElement("tr");
-loadingRow.innerHTML = `<td colspan="2">Loading...</td>`;
-output.appendChild(loadingRow);
-
-// Function to create a promise with random delay between 1-3 seconds
-function createPromise(id) {
-  const delay = Math.random() * 2 + 1; // 1 to 3 seconds
-  return new Promise(resolve => {
+function createPromise(index) {
+  return new Promise((resolve) => {
+    const time = (Math.random() * 2 + 1).toFixed(3); // Random time between 1 and 3 seconds
     setTimeout(() => {
-      resolve({ id, time: delay.toFixed(3) });
-    }, delay * 1000);
+      resolve({ index, time });
+    }, time * 1000);
   });
 }
 
-const startTime = performance.now();
-const promises = [1, 2, 3].map(i => createPromise(i));
+// Create 3 promises
+const promises = [createPromise(1), createPromise(2), createPromise(3)];
 
-// Wait for all promises to resolve
-Promise.all(promises).then(results => {
-  const totalTime = ((performance.now() - startTime) / 1000).toFixed(3);
-
+Promise.all(promises).then((results) => {
   // Remove loading row
   output.innerHTML = "";
 
-  // Insert rows for each promise
-  results.forEach((result, i) => {
+  // Populate table with resolved values
+  results.forEach((result) => {
     const row = document.createElement("tr");
-    row.innerHTML = `<td>Promise ${i + 1}</td><td>${result.time}</td>`;
+    row.innerHTML = `
+      <td>Promise ${result.index}</td>
+      <td>${result.time}</td>
+    `;
     output.appendChild(row);
   });
 
-  // Insert total row
+  // Calculate total time (longest time)
+  const totalTime = Math.max(...results.map((result) => parseFloat(result.time))).toFixed(3);
+
+  // Add total row
   const totalRow = document.createElement("tr");
-  totalRow.innerHTML = `<td><strong>Total</strong></td><td><strong>${totalTime}</strong></td>`;
+  totalRow.innerHTML = `
+    <td><strong>Total</strong></td>
+    <td><strong>${totalTime}</strong></td>
+  `;
   output.appendChild(totalRow);
 });
